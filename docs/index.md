@@ -27,6 +27,7 @@
 ## Дополнительно
 
 - [Фактическое время](time-spent.md)
+- [Оценка качества (evaluation harness)](evaluation.md)
 - [Правила работы coding-агентов](../AGENTS.md)
 - [Как внести изменение](../CONTRIBUTING.md)
 - [Политика безопасности](../SECURITY.md)
