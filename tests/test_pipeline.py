@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import re
 import unittest
 from pathlib import Path
 
@@ -12,6 +14,10 @@ from ldlatte_agent.scoring import score_candidate
 from ldlatte_agent.xlsx_loader import load_seed_profiles, normalize_instagram
 
 ROOT = Path(__file__).resolve().parent.parent
+
+ISO8601_RE = re.compile(
+    r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$"
+)
 
 
 class InstagramNormalizationTests(unittest.TestCase):
@@ -127,6 +133,54 @@ class ScoringTests(unittest.TestCase):
         self.assertIn("из команды LD LATTE", offer)
         self.assertNotIn("Я Женя", offer)
         self.assertNotIn("я веду бренд", offer.lower())
+
+
+class LiveDiscoveryHardeningTests(unittest.TestCase):
+    def test_iso8601_regex_accepts_valid_dates(self) -> None:
+        """P0-06: iso8601 regex used for validation must accept real timestamps."""
+        valid = [
+            "2026-07-27T14:30:00+00:00",
+            "2026-07-27T14:30:00Z",
+            "2026-07-27T14:30:00.123456+00:00",
+            "2026-07-27",
+        ]
+        for ts in valid:
+            self.assertTrue(
+                ISO8601_RE.match(ts),
+                f"'{ts}' should match ISO-8601 regex",
+            )
+
+    def test_iso8601_regex_rejects_literal_live(self) -> None:
+        """P0-06: 'live' must not pass as an ISO-8601 date."""
+        self.assertIsNone(ISO8601_RE.match("live"))
+        self.assertIsNone(ISO8601_RE.match(""))
+
+    @unittest.skipUnless(
+        os.getenv("DEEPSEEK_API_KEY") and (ROOT / "docs" / "Блогеры.xlsx").exists(),
+        "Live API key and private workbook required.",
+    )
+    def test_live_discovery_produces_iso8601_dates(self) -> None:
+        """P0-06 integration: every live source must carry an ISO-8601 observed_at."""
+        from dotenv import load_dotenv
+
+        load_dotenv(override=False)
+        result = run_pipeline(
+            ROOT / "docs" / "Блогеры.xlsx",
+            live_llm=True,
+            live_discovery=True,
+        )
+        for candidate in result.candidates:
+            for source in candidate.sources:
+                oat = source.get("observed_at", "")
+                self.assertNotEqual(
+                    oat,
+                    "live",
+                    f"observed_at='live' for candidate {candidate.handle}",
+                )
+                self.assertTrue(
+                    ISO8601_RE.match(oat),
+                    f"observed_at='{oat}' is not ISO-8601 for {candidate.handle}",
+                )
 
 
 if __name__ == "__main__":

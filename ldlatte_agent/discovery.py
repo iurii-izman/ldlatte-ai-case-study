@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -97,7 +98,7 @@ def discover_live(
         url = item.get("url", "")
         if url not in by_url:
             continue
-        if item.get("profile_type") not in {None, "personal_creator"}:
+        if item.get("profile_type") != "personal_creator":
             continue
         identity = _candidate_handle(url)
         if not identity or identity[0] in seed_handles:
@@ -139,7 +140,7 @@ def discover_live(
                 sources=[
                     {
                         "url": evidence["source_url"],
-                        "observed_at": "live",
+                        "observed_at": datetime.now(UTC).isoformat(),
                         "note": evidence["snippet"][:300],
                     }
                 ],
