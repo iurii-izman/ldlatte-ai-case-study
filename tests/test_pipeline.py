@@ -72,7 +72,7 @@ class WorkbookTests(unittest.TestCase):
         self.assertEqual(len(seeds), 34)
         self.assertEqual(seeds[0].number, 1)
         self.assertEqual(seeds[-1].number, 38)
-        self.assertGreaterEqual(quality["hyperlink_overrides"], 5)
+        self.assertGreaterEqual(quality["hyperlink_overrides"], 6)
 
 
 class ScoringTests(unittest.TestCase):
