@@ -1008,7 +1008,7 @@ flowchart LR
 - `prompts/offer.md` — оффер.
 - `data/seed_annotations.json` — seed evidence.
 - `data/candidates.json` — candidate snapshot.
-- `output/playwright/candidates.png` — экран приложения.
+- `docs/assets/demo/` — скриншоты интерфейса.
 - `docs/part1-model-context.md` — контекст для другой модели.
 - `docs/part1-model-prompts.md` — готовые исследовательские запросы.
 - `docs/part1-improvement-backlog.md` — приоритизированный backlog.
