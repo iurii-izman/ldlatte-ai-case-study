@@ -90,6 +90,7 @@ applies.
 - Public clone runs without private files or API keys.
 - Demo mode makes no paid or mutating external calls.
 - Tests and lint pass.
+- `python scripts/evaluate_demo.py` passes with exit code 0.
 - New claims are sourced and uncertainty is visible.
 - README and relevant docs match actual behavior.
 - No ignored or private data is staged.

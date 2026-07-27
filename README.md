@@ -107,11 +107,14 @@ Copy-Item .env.example .env
 python -m pip install -r requirements.txt -r requirements-dev.txt
 python -m ruff check .
 python -m unittest discover -s tests -v
+python scripts/evaluate_demo.py
 ```
 
-GitHub Actions повторяет lint, тесты и demo-smoke на Python 3.11 и 3.12. CodeQL проверяет
-Python-код при каждом изменении и по расписанию, а Dependabot следит за Python-зависимостями
-и GitHub Actions.
+GitHub Actions повторяет lint, тесты, demo-smoke и evaluation на Python 3.11 и 3.12.
+CodeQL проверяет Python-код при каждом изменении и по расписанию, а Dependabot следит
+за Python-зависимостями и GitHub Actions.
+
+Подробнее о системе оценки: [evaluation.md](docs/evaluation.md).
 
 ## Ограничения
 

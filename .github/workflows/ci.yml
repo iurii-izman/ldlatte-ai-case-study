@@ -52,3 +52,6 @@ jobs:
           python -m ldlatte_agent.cli \
             --input examples/bloggers-demo.xlsx \
             --output results/smoke.json
+
+      - name: Evaluation
+        run: python scripts/evaluate_demo.py
