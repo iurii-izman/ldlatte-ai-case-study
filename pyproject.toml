@@ -1,0 +1,37 @@
+[project]
+name = "ldlatte-influencer-scout"
+version = "0.1.0"
+description = "Evidence-first influencer discovery prototype for a fashion e-commerce case study"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "Iurii Izman" }
+]
+dependencies = [
+  "ddgs>=9,<10",
+  "openpyxl>=3.1,<4",
+  "python-dotenv>=1.0,<2",
+  "requests>=2.32,<3",
+  "streamlit>=1.42,<2",
+]
+
+[project.scripts]
+ldlatte-scout = "ldlatte_agent.cli:main"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = [
+  ".tmp",
+  "outputs",
+  "private",
+  "data/private",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

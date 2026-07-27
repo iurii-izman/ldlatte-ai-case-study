@@ -1,0 +1,34 @@
+name: Feature request
+description: Propose a scoped improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Which user or business problem should be solved?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and success metric
+      description: Explain how the change will be evaluated.
+    validations:
+      required: true
+  - type: dropdown
+    id: data
+    attributes:
+      label: Data classification
+      options:
+        - Synthetic only
+        - Approved public data
+        - Private data required
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and safeguards
+      description: Include privacy, outreach, and hallucination risks.

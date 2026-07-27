@@ -1,0 +1,72 @@
+[
+  {
+    "handle": "demo.latte.style",
+    "role": "core_creator",
+    "tags": ["fashion", "feminine", "outfits"],
+    "facts": ["Синтетический профиль: женственные повседневные образы."],
+    "sources": []
+  },
+  {
+    "handle": "demo.wb.finds",
+    "role": "core_creator",
+    "tags": ["fashion", "wb", "reviews"],
+    "facts": ["Синтетический профиль: примерки и находки маркетплейсов."],
+    "sources": []
+  },
+  {
+    "handle": "demo.beauty.life",
+    "role": "secondary_cluster",
+    "tags": ["beauty", "lifestyle"],
+    "facts": ["Синтетический профиль: beauty и lifestyle."],
+    "sources": []
+  },
+  {
+    "handle": "demo.neutral.looks",
+    "role": "core_creator",
+    "tags": ["fashion", "neutral", "aesthetic"],
+    "facts": ["Синтетический профиль: нейтральная эстетика."],
+    "sources": []
+  },
+  {
+    "handle": "demo.ugc.creator",
+    "role": "core_creator",
+    "tags": ["fashion", "ugc", "reviews"],
+    "facts": ["Синтетический профиль: UGC и обзоры одежды."],
+    "sources": []
+  },
+  {
+    "handle": "demo.home.notes",
+    "role": "outlier",
+    "tags": ["home"],
+    "facts": ["Синтетический тематический выброс: дом и уют."],
+    "sources": []
+  },
+  {
+    "handle": "demo.brand.reference",
+    "role": "visual_reference",
+    "tags": ["brand", "high-production"],
+    "facts": ["Синтетический визуальный референс, не независимый автор."],
+    "sources": []
+  },
+  {
+    "handle": "demo.short.video",
+    "role": "secondary_cluster",
+    "tags": ["reels", "aesthetic"],
+    "facts": ["Синтетический профиль: короткие эстетичные видео."],
+    "sources": []
+  },
+  {
+    "handle": "demo.office.outfits",
+    "role": "core_creator",
+    "tags": ["fashion", "outfits", "office"],
+    "facts": ["Синтетический профиль: офисные капсулы."],
+    "sources": []
+  },
+  {
+    "handle": "demo.family.food",
+    "role": "outlier",
+    "tags": ["food", "family"],
+    "facts": ["Синтетический тематический выброс: еда и семья."],
+    "sources": []
+  }
+]

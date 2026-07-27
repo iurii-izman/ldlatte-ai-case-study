@@ -1,0 +1,192 @@
+[
+  {
+    "handle": "nastia_kosh_tg",
+    "platform": "telegram + instagram",
+    "url": "https://t.me/nastia_kosh_TG",
+    "title": "nastia__kosh про стиль и находки",
+    "followers": 57394,
+    "avg_views": 8912,
+    "engagement_rate": 15.53,
+    "facts": [
+      "Персональный стилист, ведёт блог с находками.",
+      "В июле 2026 публиковала нежные WB-находки, готовые образы и артикулы.",
+      "В описании указан отдельный контакт для сотрудничества."
+    ],
+    "sources": [
+      {
+        "url": "https://t.me/s/nastia_kosh_TG",
+        "observed_at": "2026-07-27",
+        "note": "Публичная лента: стилист, WB-находки, готовые образы и свежие публикации."
+      },
+      {
+        "url": "https://telemetr.me/content/nastia_kosh_tg",
+        "observed_at": "2026-07-27",
+        "note": "Снимок публичных метрик; значения следует перепроверить перед контактом."
+      }
+    ],
+    "features": {
+      "content_fit": 0.98,
+      "aesthetic_fit": 0.94,
+      "marketplace_fit": 0.98,
+      "engagement_quality": 0.82,
+      "audience_fit": 0.9,
+      "activity": 0.98,
+      "barter_likelihood": 0.48
+    },
+    "confidence": 0.91,
+    "risk": 0.04,
+    "cooperation_status": "скорее гибрид; уточнить условия",
+    "contact": "ссылка «Сотрудничества» в описании канала",
+    "offer_anchor": "вы не просто показываете вещи, а собираете нежные носибельные образы с артикулами и объясняете, почему находка удачная"
+  },
+  {
+    "handle": "zhanna_dressme",
+    "platform": "telegram",
+    "url": "https://t.me/zhanna_dressme",
+    "title": "Стилист Жанна Тюрина",
+    "followers": 45888,
+    "avg_views": 20700,
+    "engagement_rate": null,
+    "facts": [
+      "Персональный стилист с регулярными обзорами женской одежды.",
+      "Показывает готовые женственные стилизации и приводит артикулы WB.",
+      "В публичных постах объясняет посадку, детали кроя и сценарии ношения."
+    ],
+    "sources": [
+      {
+        "url": "https://t.me/s/zhanna_dressme",
+        "observed_at": "2026-07-27",
+        "note": "Публичные посты с женственными образами, артикулами WB и просмотрами."
+      },
+      {
+        "url": "https://telemetr.me/catalog/marketplace/wildberries",
+        "observed_at": "2026-07-27",
+        "note": "Каталог подтверждает существование и размер канала; метрики динамичны."
+      }
+    ],
+    "features": {
+      "content_fit": 0.97,
+      "aesthetic_fit": 0.93,
+      "marketplace_fit": 0.96,
+      "engagement_quality": 0.9,
+      "audience_fit": 0.88,
+      "activity": 0.95,
+      "barter_likelihood": 0.5
+    },
+    "confidence": 0.9,
+    "risk": 0.04,
+    "cooperation_status": "скорее гибрид; уточнить условия",
+    "contact": "@da_shady (по описанию канала, проверить актуальность)",
+    "offer_anchor": "в ваших обзорах есть не только артикул, но и понятное объяснение посадки, кроя и того, куда носить вещь"
+  },
+  {
+    "handle": "wb_gellli_k",
+    "platform": "telegram + instagram",
+    "url": "https://t.me/wb_gellli_k",
+    "title": "Ангелина | обзоры с Wildberries",
+    "followers": 48370,
+    "avg_views": 6400,
+    "engagement_rate": null,
+    "facts": [
+      "Позиционирование: стильные качественные находки с высоким рейтингом на WB.",
+      "Свежие публикации включают офисные образы и комплекты для летних мероприятий.",
+      "Указаны Instagram автора и контакт по рекламе."
+    ],
+    "sources": [
+      {
+        "url": "https://telemetr.io/en/channels/2104968248-wb_gellli_k",
+        "observed_at": "2026-07-27",
+        "note": "Снимок размера канала и свежих постов с просмотрами."
+      },
+      {
+        "url": "https://nicegram.app/hub/channel/wb_gellli_k",
+        "observed_at": "2026-07-27",
+        "note": "Публичное описание, Instagram gellli_k и контакт."
+      }
+    ],
+    "features": {
+      "content_fit": 0.96,
+      "aesthetic_fit": 0.9,
+      "marketplace_fit": 0.99,
+      "engagement_quality": 0.72,
+      "audience_fit": 0.9,
+      "activity": 0.96,
+      "barter_likelihood": 0.6
+    },
+    "confidence": 0.88,
+    "risk": 0.04,
+    "cooperation_status": "рекламный контакт открыт; бартер уточнить",
+    "contact": "@oolya_ss",
+    "offer_anchor": "вы регулярно собираете цельные офисные и событийные образы из WB-находок, а не публикуете безличную ленту скидок"
+  },
+  {
+    "handle": "maryamushik",
+    "platform": "telegram",
+    "url": "https://t.me/maryamushik",
+    "title": "Maryamushik | Марьям Юсупова | Стилист",
+    "followers": 31190,
+    "avg_views": 1779,
+    "engagement_rate": 5.61,
+    "facts": [
+      "Позиционирование: лайф+стайл, стильные подборки и распаковки.",
+      "Автор прямо формулирует ценность как готовые сочетания, а не отдельные ссылки.",
+      "В свежих постах спрашивает аудиторию об образах и находках WB/Ozon."
+    ],
+    "sources": [
+      {
+        "url": "https://telemetr.me/content/maryamushik",
+        "observed_at": "2026-07-27",
+        "note": "Описание, публичные метрики и свежие публикации июля 2026."
+      }
+    ],
+    "features": {
+      "content_fit": 0.94,
+      "aesthetic_fit": 0.88,
+      "marketplace_fit": 0.91,
+      "engagement_quality": 0.56,
+      "audience_fit": 0.86,
+      "activity": 0.87,
+      "barter_likelihood": 0.68
+    },
+    "confidence": 0.86,
+    "risk": 0.06,
+    "cooperation_status": "контакт открыт; формат уточнить",
+    "contact": "@maryme_yusupova",
+    "offer_anchor": "вы сами подчёркиваете, что подписчицам нужны не отдельные ссылки, а готовые сочетания с уже существующим гардеробом"
+  },
+  {
+    "handle": "yuliia.vasilyeva",
+    "platform": "instagram + telegram",
+    "url": "https://www.instagram.com/yuliia.vasilyeva/",
+    "title": "Юля | Wildberries / обзоры / Lifestyle",
+    "followers": 4325,
+    "avg_views": null,
+    "engagement_rate": 1.87,
+    "facts": [
+      "Публичное позиционирование: Wildberries, обзоры и lifestyle.",
+      "В июле 2026 публиковала личный контент о рубашках и цветовых сочетаниях.",
+      "Небольшой размер аудитории делает бартер реалистичнее, но охват нужно запросить."
+    ],
+    "sources": [
+      {
+        "url": "https://telemetr.me/content/yuliavasilyeva1",
+        "observed_at": "2026-07-27",
+        "note": "Telegram-профиль связывает канал с Instagram yuliia.vasilyeva и показывает свежий контент."
+      }
+    ],
+    "features": {
+      "content_fit": 0.9,
+      "aesthetic_fit": 0.8,
+      "marketplace_fit": 0.94,
+      "engagement_quality": 0.3,
+      "audience_fit": 0.78,
+      "activity": 0.78,
+      "barter_likelihood": 0.88
+    },
+    "confidence": 0.72,
+    "risk": 0.12,
+    "cooperation_status": "бартер вероятен; запросить охваты",
+    "contact": "direct Instagram / ссылка из Telegram-профиля",
+    "offer_anchor": "у вас личная, неагрегаторская подача WB-находок, а недавний пост о любимых рубашках даёт естественный вход для образа LD LATTE"
+  }
+]

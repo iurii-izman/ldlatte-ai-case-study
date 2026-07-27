@@ -1,0 +1,51 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Private employer/source data
+private/
+data/private/
+docs/*.xlsx
+docs/*.xls
+docs/*.csv
+docs/*.pdf
+!examples/*.xlsx
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+dist/
+build/
+
+# IDE and operating system
+.idea/
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local runtimes and generated artifacts
+.streamlit/
+.playwright-cli/
+results/
+tmp/
+.tmp/
+outputs/
+output/playwright/*.log
+*.log
