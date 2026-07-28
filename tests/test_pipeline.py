@@ -3,7 +3,10 @@ from __future__ import annotations
 import os
 import re
 import unittest
+from io import BytesIO
 from pathlib import Path
+
+from openpyxl import Workbook
 
 from ldlatte_agent.discovery import _looks_like_aggregator, _parse_followers
 from ldlatte_agent.google_sheets import google_sheet_export_url
@@ -68,6 +71,24 @@ class WorkbookTests(unittest.TestCase):
         self.assertIn("demo.latte.style", handles)
         self.assertIn("demo.neutral.looks", handles)
         self.assertEqual(quality["sheet"], "Исходник")
+
+    def test_duplicate_handles_are_counted(self) -> None:
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = "Исходник"
+        worksheet.append(["№", "Ссылка"])
+        worksheet.append([1, "https://www.instagram.com/demo.latte.style/"])
+        worksheet.append(
+            [2, "https://www.instagram.com/demo.latte.style/?utm_source=duplicate"]
+        )
+        stream = BytesIO()
+        workbook.save(stream)
+        stream.seek(0)
+
+        seeds, quality = load_seed_profiles(stream)
+
+        self.assertEqual(len(seeds), 1)
+        self.assertEqual(quality["duplicate_handles"], 1)
 
     @unittest.skipUnless(
         (ROOT / "docs" / "Блогеры.xlsx").exists(),

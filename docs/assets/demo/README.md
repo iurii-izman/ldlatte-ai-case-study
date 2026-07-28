@@ -1,7 +1,13 @@
 # Demo screenshots
 
-Скриншоты интерфейса LD LATTE Influencer Scout сделанные в режиме Демо
+Скриншоты интерфейса LD LATTE Influencer Scout, сделанные в режиме Демо
 на синтетических данных `examples/bloggers-demo.xlsx`.
+
+Файлы в этой папке сняты из реального локального Streamlit-приложения:
+
+- `landing.png` — первый экран до запуска;
+- `candidates.png` — shortlist после выполнения pipeline;
+- `offers.png` — персональные черновики с human-approval предупреждением.
 
 ## Как обновить
 
