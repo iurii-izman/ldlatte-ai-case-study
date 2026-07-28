@@ -101,8 +101,17 @@ def build_llm_portrait(
                 "sources": annotation.get("sources", []),
             }
         )
-    return client.complete_json(
+    portrait = client.complete_json(
         system=prompt,
         user=json.dumps({"seed_profiles": evidence}, ensure_ascii=False),
         max_tokens=2200,
     )
+    evidenced = sum(
+        bool(annotation.get("facts") or annotation.get("sources"))
+        for annotation in (
+            annotations.get(seed.handle, {})
+            for seed in seeds
+        )
+    )
+    portrait["evidence_coverage"] = round(evidenced / max(len(seeds), 1), 2)
+    return portrait

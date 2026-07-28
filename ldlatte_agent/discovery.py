@@ -4,6 +4,7 @@ import json
 import re
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 
 from ddgs import DDGS
@@ -61,13 +62,26 @@ def _parse_followers(text: str) -> int | None:
 def discover_live(
     *,
     seed_handles: set[str],
+    portrait: dict[str, Any],
     client: JSONLLMClient,
     prompt_path: str | Path,
     max_results_per_query: int = 8,
 ) -> list[Candidate]:
+    raw_portrait_queries = portrait.get("search_queries", [])
+    if not isinstance(raw_portrait_queries, list):
+        raw_portrait_queries = []
+    portrait_queries = [
+        query.strip()
+        for query in raw_portrait_queries
+        if isinstance(query, str)
+        and 10 <= len(query.strip()) <= 200
+        and not any(char in query for char in "\r\n")
+    ][:5]
+    queries = list(dict.fromkeys([*portrait_queries, *DEFAULT_QUERIES]))
+
     raw_results: list[dict[str, str]] = []
     with DDGS() as search:
-        for query in DEFAULT_QUERIES:
+        for query in queries:
             for item in search.text(query, max_results=max_results_per_query):
                 url = item.get("href", "")
                 identity = _candidate_handle(url)
@@ -90,7 +104,13 @@ def discover_live(
     prompt = Path(prompt_path).read_text(encoding="utf-8")
     result = client.complete_json(
         system=prompt,
-        user=json.dumps({"search_results": list(by_url.values())}, ensure_ascii=False),
+        user=json.dumps(
+            {
+                "ideal_blogger_portrait": portrait,
+                "search_results": list(by_url.values()),
+            },
+            ensure_ascii=False,
+        ),
         max_tokens=2400,
     )
     candidates: list[Candidate] = []

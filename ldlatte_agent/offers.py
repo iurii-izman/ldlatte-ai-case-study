@@ -23,6 +23,12 @@ def deterministic_offer(candidate: Candidate) -> str:
     )
 
 
+def _has_personal_anchor(candidate: Candidate, offer: str) -> bool:
+    if candidate.offer_anchor and candidate.offer_anchor[:30] in offer:
+        return True
+    return any(fact[:20] in offer for fact in candidate.facts if fact)
+
+
 def generate_offer_with_llm(
     candidate: Candidate,
     client: JSONLLMClient,
@@ -53,5 +59,7 @@ def generate_offer_with_llm(
     ]
     if any(re.search(pattern, cleaned, flags=re.IGNORECASE) for pattern in forbidden_patterns):
         # Safe fallback is better than a polished hallucination.
+        return deterministic_offer(candidate)
+    if not _has_personal_anchor(candidate, cleaned):
         return deterministic_offer(candidate)
     return cleaned

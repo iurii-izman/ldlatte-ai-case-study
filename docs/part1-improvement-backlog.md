@@ -1,6 +1,6 @@
 # Backlog развития LD LATTE Influencer Scout
 
-Актуальность: 27 июля 2026 года.
+Актуальность: 28 июля 2026 года.
 
 Размер задачи:
 
@@ -14,11 +14,20 @@
 ## Рекомендуемый порядок
 
 1. Сначала доказуемость и безопасность.
-2. Затем автоматическое evidence enrichment.
+2. Затем повысить покрытие и устойчивость evidence enrichment.
 3. Потом новые платформы и мультимодальность.
 4. Только после этого CRM, отправка и learning loop.
 
 Добавлять автосообщения до P0-готовности не следует.
+
+## Уже выполнено
+
+- корректный счётчик дубликатов и отдельный тест;
+- обязательный `personal_creator` для live discovery;
+- ISO-8601 время наблюдения для live evidence;
+- автоматический сбор датированных public-index evidence по seed в полном live-режиме;
+- публичный demo из чистого clone, 52 теста, screenshots, smoke и evaluation;
+- фактическое время по всем трём частям и упаковке.
 
 ## P0 — до следующего серьёзного live-пилота
 
@@ -27,21 +36,16 @@
 | P0-01 | Строгие схемы LLM-ответов | M | Сейчас есть только `json.loads` и ручные проверки отдельных полей | Portrait, discovery и offer валидируются; unknown fields/типы обрабатываются предсказуемо; есть invalid fixtures |
 | P0-02 | Защита от prompt injection | M | Title/snippet — недоверенные строки | Prompt явно помечает данные; найденные инструкции не исполняются; adversarial eval проходит |
 | P0-03 | Freshness и profile-health gate | M | Cached sources быстро устаревают | У каждого evidence есть дата; stale-кандидат не допускается к контакту без refresh |
-| P0-04 | Исправить data-quality counters | S | `duplicate_handles` всегда 0 | Реальный дубль увеличивает счётчик; тест покрывает |
-| P0-05 | Ужесточить `profile_type` | S | Сейчас `None` может пройти | Только явный `personal_creator` проходит live discovery |
-| P0-06 | ISO timestamp для live evidence | S | `"live"` нельзя использовать для аудита | `observed_at` — UTC ISO-8601; тест формата |
 | P0-07 | Run manifest | M | Нельзя точно воспроизвести LLM-run | Сохраняются run ID, input hash, git SHA, model, prompt hash, timings, fallbacks |
-| P0-08 | Failure-path tests | M | Нет покрытия timeout/invalid JSON/search failure | Все ошибки дают понятный status; demo остаётся доступен |
+| P0-08 | Failure-path tests | M | Нет полного покрытия timeout/invalid JSON и ошибок LLM | Все ошибки дают понятный status; demo остаётся доступен |
 | P0-09 | Юридический channel gate | M | Research score не определяет допустимость рекламы | Поля `research_allowed`, `activation_status`, `legal_owner`; blocked нельзя approve |
 | P0-10 | Evidence coverage report | S | 62% легко потерять за красивым portrait | UI показывает annotated/unknown/conflicts и список профилей для доработки |
-| P0-11 | Финальная воспроизводимость тестового | S | Нужна одна ссылка и простой запуск | Чистая машина запускает demo по README; 9+ тестов зелёные; screenshot/JSON доступны |
-| P0-12 | Указать фактическое время части 1 | S | Прямое условие задания | Пользователь подтверждает время; значение внесено без оценки AI |
 
 ## P1 — качество данных и рабочий процесс
 
 | ID | Задача | Размер | Зачем | Критерий приёмки |
 |---|---|---:|---|---|
-| P1-01 | Автоматическое seed enrichment | L | 13 из 34 профилей unknown | Coverage ≥90% либо documented unavailable; каждый факт имеет source/date/confidence |
+| P1-01 | Укрепить seed enrichment | L | MVP использует индексируемые web-сниппеты, покрытие зависит от выдачи | Coverage ≥90% либо documented unavailable; разрешённые platform sources, retry/cache; каждый факт имеет source/date/confidence |
 | P1-02 | Manual evidence review UI | M | Автоматические факты нужно подтверждать | Менеджер approve/edit/reject факт; история сохраняется |
 | P1-03 | YouTube Shorts adapter | L | Заявлен заданием и prompt, но отсутствует в коде | Канонический channel/short URL, Data API evidence, tests, rate limits |
 | P1-04 | Telegram adapter | L | Общий web search недостаточно устойчив | Платформенный evidence contract, freshness и creator/aggregator checks |
@@ -187,11 +191,11 @@
 
 ### Если нужна быстрая польза
 
-Задачи P0-04, P0-05, P0-06 и P0-08.
+Задачи P0-01, P0-02, P0-03 и P0-08.
 
 ### Если нужна самая важная продуктовая итерация
 
-P1-01: automatic seed enrichment.
+P1-01: повышение покрытия и устойчивости seed enrichment.
 
 ### Если нужно доказать «AI-часть»
 

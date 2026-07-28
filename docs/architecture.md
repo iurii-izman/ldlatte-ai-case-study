@@ -6,14 +6,19 @@
    Sheets XLSX-export. Ссылки нормализуются, tracking-параметры удаляются,
    hyperlink Excel имеет приоритет над видимым текстом. Закрытая таблица через
    service account пока не реализована.
-2. **Seed enrichment — частично.** Сохранён evidence snapshot по 21 из 34
-   профилей. Автоматический сбор bio, публикаций, времени, источника и confidence
-   для каждого seed — следующая итерация.
+2. **Seed enrichment — MVP.** Полный live-режим автоматически собирает по каждому
+   seed датированные evidence из публичного поискового индекса и передаёт их в
+   LLM-портрет. Сохранённый snapshot покрывает 21 из 34 профилей; три
+   контрольных live-run дали evidence по 24–33 профилям из 46–73 источников.
+   Пропуски остаются `unknown`. Прямые platform adapters и мультимодальность —
+   следующая итерация.
 3. **Portrait — реализовано.** Seed сначала делится на роли. Visual references
    отвечают только за эстетику, core creators — за контент и аудиторию, outliers
    не сдвигают диапазоны.
-4. **Discovery — MVP.** Используются индексируемый web и Telegram. YouTube Data
-   API и разрешённый Instagram business/creator adapter пока не реализованы.
+4. **Discovery — MVP.** Запросы из построенного портрета дополняются безопасным
+   базовым набором для recall, а сам portrait передаётся в LLM-отбор.
+   Используются индексируемый web и Telegram. YouTube Data API и разрешённый
+   Instagram business/creator adapter пока не реализованы.
 5. **Validation — реализовано частично.** URL должен присутствовать в выдаче,
    отсутствовать в seed и пройти фильтры. LLM не может создать URL. Прямой
    profile-health check и freshness gate нужно добавить.
@@ -72,7 +77,7 @@ stateDiagram-v2
 ## Production-изменения
 
 - Google service account с доступом только к нужной таблице.
-- Автоматический evidence enrichment и freshness policy.
+- Разрешённые platform adapters для enrichment и freshness policy.
 - YouTube/Telegram/разрешённый Instagram adapter.
 - Очередь задач, retry с backoff, кэш и лимиты запросов.
 - Хранилище секретов вместо `.env`.

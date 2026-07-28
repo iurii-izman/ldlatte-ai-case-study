@@ -1,17 +1,25 @@
 from __future__ import annotations
 
+import json
 import os
 import re
 import unittest
 from io import BytesIO
 from pathlib import Path
+from unittest.mock import patch
 
 from openpyxl import Workbook
 
-from ldlatte_agent.discovery import _looks_like_aggregator, _parse_followers
+from ldlatte_agent.discovery import (
+    DEFAULT_QUERIES,
+    _looks_like_aggregator,
+    _parse_followers,
+    discover_live,
+)
+from ldlatte_agent.enrichment import collect_seed_evidence
 from ldlatte_agent.google_sheets import google_sheet_export_url
-from ldlatte_agent.models import Candidate
-from ldlatte_agent.offers import deterministic_offer
+from ldlatte_agent.models import Candidate, SeedProfile
+from ldlatte_agent.offers import deterministic_offer, generate_offer_with_llm
 from ldlatte_agent.pipeline import run_pipeline
 from ldlatte_agent.scoring import score_candidate
 from ldlatte_agent.xlsx_loader import load_seed_profiles, normalize_instagram
@@ -132,7 +140,25 @@ class ScoringTests(unittest.TestCase):
         self.assertTrue(all(item.sources for item in result.candidates))
         self.assertTrue(all(len(item.offer) > 100 for item in result.candidates))
 
-    def test_deterministic_offer_does_not_invent_sender(self) -> None:
+    def test_live_search_failure_returns_cached_candidates(self) -> None:
+        with patch(
+            "ldlatte_agent.pipeline.discover_live",
+            side_effect=RuntimeError("search unavailable"),
+        ):
+            result = run_pipeline(
+                ROOT / "examples" / "bloggers-demo.xlsx",
+                live_discovery=True,
+                client=object(),
+            )
+
+        self.assertEqual(len(result.candidates), 5)
+        self.assertEqual(
+            result.data_quality["live_discovery_error_type"],
+            "RuntimeError",
+        )
+        self.assertIn("cached snapshot", result.data_quality["live_discovery_fallback"])
+
+    def test_offer_guardrails_preserve_sender_and_personal_anchor(self) -> None:
         candidate = Candidate(
             handle="test",
             platform="telegram",
@@ -155,8 +181,65 @@ class ScoringTests(unittest.TestCase):
         self.assertNotIn("Я Женя", offer)
         self.assertNotIn("я веду бренд", offer.lower())
 
+        class GenericOfferClient:
+            def complete_json(self, *, system, user, max_tokens):
+                return {
+                    "offer": (
+                        "Привет! Пишу из команды LD LATTE. Нам близок ваш формат "
+                        "и хотелось бы предложить сотрудничество с брендом женской "
+                        "одежды. Можно прислать несколько позиций и короткий бриф? "
+                        "Формат, сроки и права на контент заранее согласуем."
+                    )
+                }
+
+        guarded = generate_offer_with_llm(
+            candidate,
+            GenericOfferClient(),
+            ROOT / "prompts" / "offer.md",
+        )
+        self.assertIn(candidate.offer_anchor, guarded)
+
 
 class LiveDiscoveryHardeningTests(unittest.TestCase):
+    def test_discovery_uses_portrait_queries_and_context(self) -> None:
+        queries: list[str] = []
+
+        class FakeSearch:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return None
+
+            def text(self, query, max_results):
+                queries.append(query)
+                return []
+
+        class FakeClient:
+            def complete_json(self, *, system, user, max_tokens):
+                payload = json.loads(user)
+                self.portrait = payload["ideal_blogger_portrait"]
+                return {"candidates": []}
+
+        client = FakeClient()
+        portrait = {
+            "summary": "Носибельные женственные образы",
+            "search_queries": ['site:t.me/s "капсула WB" стилист'],
+        }
+
+        with patch("ldlatte_agent.discovery.DDGS", FakeSearch):
+            candidates = discover_live(
+                seed_handles=set(),
+                portrait=portrait,
+                client=client,
+                prompt_path=ROOT / "prompts" / "discovery.md",
+            )
+
+        self.assertEqual(candidates, [])
+        self.assertEqual(queries[0], portrait["search_queries"][0])
+        self.assertTrue(all(query in queries for query in DEFAULT_QUERIES))
+        self.assertEqual(client.portrait, portrait)
+
     def test_iso8601_regex_accepts_valid_dates(self) -> None:
         """P0-06: iso8601 regex used for validation must accept real timestamps."""
         valid = [
@@ -202,6 +285,73 @@ class LiveDiscoveryHardeningTests(unittest.TestCase):
                     ISO8601_RE.match(oat),
                     f"observed_at='{oat}' is not ISO-8601 for {candidate.handle}",
                 )
+
+
+class SeedEnrichmentTests(unittest.TestCase):
+    def test_collects_dated_public_evidence_without_inventing_metrics(self) -> None:
+        seed = SeedProfile(
+            excel_row=2,
+            number=1,
+            display="@demo.latte.style",
+            source_url="https://www.instagram.com/demo.latte.style/",
+            handle="demo.latte.style",
+            normalized_url="https://www.instagram.com/demo.latte.style/",
+        )
+        missing_seed = SeedProfile(
+            excel_row=3,
+            number=2,
+            display="@demo.no.index",
+            source_url="https://www.instagram.com/demo.no.index/",
+            handle="demo.no.index",
+            normalized_url="https://www.instagram.com/demo.no.index/",
+        )
+
+        class FakeSearch:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return None
+
+            def text(self, query, max_results):
+                self.query = query
+                self.max_results = max_results
+                if "demo.no.index" in query:
+                    raise RuntimeError("search unavailable")
+                return [
+                    {
+                        "href": "https://www.instagram.com/demo.latte.style/",
+                        "title": "Demo Latte Style",
+                        "body": "Женственные образы и примерки одежды.",
+                    },
+                    {
+                        "href": "https://example.com/unrelated",
+                        "title": "Другой профиль",
+                        "body": "Нерелевантный результат.",
+                    },
+                ]
+
+        annotations, quality = collect_seed_evidence(
+            [seed, missing_seed],
+            {},
+            search_factory=FakeSearch,
+            observed_at="2026-07-28T10:00:00+00:00",
+        )
+
+        record = annotations[seed.handle]
+        self.assertEqual(record["role"], "unknown")
+        self.assertEqual(record["evidence_origin"], "live_public_search")
+        self.assertEqual(len(record["facts"]), 1)
+        self.assertEqual(len(record["sources"]), 1)
+        self.assertEqual(
+            record["sources"][0]["observed_at"],
+            "2026-07-28T10:00:00+00:00",
+        )
+        self.assertNotIn("followers", record)
+        self.assertNotIn(missing_seed.handle, annotations)
+        self.assertEqual(quality["seed_enrichment_profiles_with_evidence"], 1)
+        self.assertEqual(quality["seed_enrichment_profiles_without_evidence"], 1)
+        self.assertEqual(quality["seed_enrichment_search_failures"], 1)
 
 
 if __name__ == "__main__":

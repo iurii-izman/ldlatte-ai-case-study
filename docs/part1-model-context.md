@@ -35,7 +35,7 @@
 
 ## 3. Проверенные факты о текущем состоянии
 
-Дата snapshot: 27 июля 2026 года.
+Дата snapshot: 28 июля 2026 года.
 
 - Реальный входной файл: `docs/Блогеры.xlsx`.
 - В книге 2 листа.
@@ -46,11 +46,14 @@
 - Размечено evidence по 21 seed.
 - 13 seed имеют роль `unknown`.
 - Evidence coverage: 0,62.
+- Три контрольных full-live run: 24–33 из 34 seed с public-index evidence,
+  46–73 источника, coverage 0,71–0,97; пропуски остались unknown.
 - Распределение: 8 core, 2 visual references, 6 secondary, 5 outliers,
   13 unknown.
 - В cached snapshot 5 новых кандидатов.
 - Demo-run возвращает score: 87,3; 87,2; 85,3; 79,9; 72,0.
-- Проходят 9/9 тестов.
+- Suite содержит 52 теста: локально 51 проходит и один live-тест пропущен; в
+  публичном CI без приватной таблицы проходят 50 и пропущены два.
 - Есть Streamlit UI, CLI и JSON export.
 - Автоматической отправки сообщений нет.
 
@@ -60,7 +63,7 @@
 XLSX / upload / public Google Sheets
 → hyperlink extraction
 → Instagram URL normalization
-→ seed roles + saved annotations
+→ saved annotations or dated public-index seed evidence
 → rule-based or DeepSeek portrait
 → cached candidates or DDGS live discovery
 → exact-URL allow-list
@@ -75,7 +78,8 @@ XLSX / upload / public Google Sheets
 
 1. `Демо`: без сети и токенов.
 2. `Live: DeepSeek`: LLM portrait + LLM offers, cached candidates.
-3. `Live: поиск + DeepSeek`: web discovery + LLM portrait/offers.
+3. `Live: поиск + DeepSeek`: automatic seed evidence + web discovery + LLM
+   portrait/offers.
 
 ## 5. Архитектурные границы
 
@@ -205,7 +209,7 @@ Missing не равен нулю. Неопределённость отража�
 
 ## 9. Что пока не реализовано
 
-- автоматическое enrichment всех seed;
+- production-grade seed enrichment через разрешённые platform sources;
 - vision-анализ ленты;
 - YouTube adapter;
 - закрытая Google Sheets через service account;
@@ -225,9 +229,8 @@ Missing не равен нулю. Неопределённость отража�
 
 ## 10. Известные проблемы
 
-- `duplicate_handles` всегда показывает 0: счётчик не увеличивается.
-- `profile_type=None` сейчас может пройти live discovery.
-- `observed_at="live"` не является ISO-датой.
+- Public-index seed enrichment зависит от поисковой выдачи и не гарантирует
+  evidence для каждого профиля.
 - Search queries не включают YouTube.
 - Followers parser понимает ограниченное число форматов.
 - Aggregator heuristic покрывает лишь несколько шаблонов.
@@ -337,7 +340,8 @@ MVP функции из раздела «не реализовано». Снач
 
 Для анализа данных:
 
-- `data/seed_annotations.json`;
+- `examples/seed_annotations.json` для публичного demo; приватную разметку
+  исходной таблицы передавать только в закрытом контуре;
 - `data/candidates.json`;
 - обезличенную/разрешённую копию структуры workbook либо агрегированную сводку.
 
@@ -375,10 +379,13 @@ output:
   candidates: 5
   scores: [87.3, 87.2, 85.3, 79.9, 72.0]
 tests:
-  passed: 9
+  total: 52
+  passed_public_ci: 50
+  skipped_public_ci: 2
   failed: 0
 external:
   google_sheets_public_export: implemented
+  public_index_seed_enrichment: implemented_mvp
   ddgs_discovery: implemented
   deepseek_json: implemented
   youtube_adapter: false

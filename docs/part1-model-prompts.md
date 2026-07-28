@@ -385,9 +385,8 @@ collaboration:
 - тестируемость.
 
 Особенно проверь известные подозрения:
-- duplicate_handles всегда 0;
-- profile_type=None проходит;
-- observed_at="live";
+- частичный отказ seed-enrichment и корректность fallback;
+- дубли/устаревание public-index evidence;
 - YouTube отсутствует;
 - LLM JSON проверяется только json.loads;
 - search result может содержать prompt injection.
