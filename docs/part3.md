@@ -64,7 +64,7 @@ Bitrix24 REST API, mock/OpenAI provider boundary, Docker Compose и GitHub Actio
 **Ссылки:** [демо-страница](https://iurii-izman.github.io/replyline/) ·
 [репозиторий](https://github.com/iurii-izman/replyline) ·
 [beta-релиз](https://github.com/iurii-izman/replyline/releases/tag/v0.2.0-beta.3) ·
-[последняя проверка CI](https://github.com/iurii-izman/replyline/actions/runs/30296945914)
+[CI](https://github.com/iurii-izman/replyline/actions)
 
 **Что это и какую задачу решает.** Windows-приложение для сложных рабочих
 разговоров: по горячей клавише захватывает короткий фрагмент системного аудио,

@@ -48,4 +48,5 @@ tmp/
 .tmp/
 outputs/
 output/playwright/*.log
+output/playwright/*.png
 *.log

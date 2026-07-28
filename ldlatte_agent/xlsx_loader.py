@@ -51,6 +51,7 @@ def load_seed_profiles(
     seen: set[str] = set()
     hyperlink_overrides = 0
     skipped = 0
+    duplicate_handles = 0
 
     for row in range(2, worksheet.max_row + 1):
         number_cell = worksheet.cell(row=row, column=1)
@@ -70,6 +71,7 @@ def load_seed_profiles(
             continue
         handle, normalized_url = normalized
         if handle in seen:
+            duplicate_handles += 1
             continue
         seen.add(handle)
         number_value = number_cell.value
@@ -96,7 +98,7 @@ def load_seed_profiles(
         "unique_profiles": len(profiles),
         "hyperlink_overrides": hyperlink_overrides,
         "skipped_non_profiles": skipped,
-        "duplicate_handles": 0,
+        "duplicate_handles": duplicate_handles,
         "note": (
             "Приоритет отдан hyperlink.target. Это исправляет скрытые расхождения "
             "между отображаемым текстом и настоящим адресом."
