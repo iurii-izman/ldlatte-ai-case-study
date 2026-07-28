@@ -44,9 +44,9 @@ MODE_META = {
         "network": True,
         "local": False,
         "description": (
-            "Web-поиск через DuckDuckGo + LLM-портрет и офферы через "
-            "DeepSeek. Результаты недетерминированы и зависят от поискового "
-            "индекса. Расходует токены."
+            "Собирает публичные evidence по исходным профилям, ищет новых "
+            "кандидатов через DuckDuckGo и строит портрет и офферы через "
+            "DeepSeek. Результаты зависят от поискового индекса."
         ),
     },
 }
@@ -234,19 +234,26 @@ if not run:
 source = uploaded if uploaded is not None else sheet_url.strip() or default_path
 live_llm = mode != "Демо"
 live_discovery = mode == "Live: поиск + DeepSeek"
+live_seed_enrichment = mode == "Live: поиск + DeepSeek"
 
 try:
     with st.status("Выполняю pipeline…", expanded=True) as status:
-        st.write("1/4 Чтение Excel, нормализация hyperlink-адресов")
+        st.write("1/5 Чтение Excel, нормализация hyperlink-адресов")
         result = run_pipeline(
             source,
             live_llm=live_llm,
+            live_seed_enrichment=live_seed_enrichment,
             live_discovery=live_discovery,
             limit=limit,
         )
-        st.write("2/4 Построение кластерного портрета блогера")
-        st.write("3/4 Поиск, проверка URL и ранжирование кандидатов")
-        st.write("4/4 Формирование офферов (отправка — только после ручного подтверждения)")
+        st.write(
+            "2/5 Сбор датированных evidence по исходным профилям"
+            if live_seed_enrichment
+            else "2/5 Загрузка сохранённых seed-evidence"
+        )
+        st.write("3/5 Построение кластерного портрета блогера")
+        st.write("4/5 Поиск, проверка URL и ранжирование кандидатов")
+        st.write("5/5 Формирование офферов (отправка — только после ручного подтверждения)")
         status.update(label="✅ Pipeline завершён", state="complete")
     st.session_state.pipeline_has_run = True
 except Exception as exc:
@@ -278,6 +285,14 @@ with tabs[0]:
 
     if dq.get("live_discovery_fallback"):
         st.warning(dq["live_discovery_fallback"])
+    if dq.get("seed_enrichment_fallback"):
+        st.warning(dq["seed_enrichment_fallback"])
+    if dq.get("seed_enrichment_search_failures"):
+        st.warning(
+            "Часть seed-запросов не сработала: "
+            f"{dq['seed_enrichment_search_failures']}. "
+            "Пропуски сохранены как unknown."
+        )
 
     st.caption("Сырой отчёт data_quality")
     st.json(dq)

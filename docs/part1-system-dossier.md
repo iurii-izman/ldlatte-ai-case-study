@@ -1,6 +1,6 @@
 # LD LATTE Influencer Scout: полное досье системы
 
-Актуальность описания: **27 июля 2026 года**.
+Актуальность описания: **28 июля 2026 года**.
 Версия прототипа: **0.1.0**.
 Назначение документа: технический и продуктовый контекст для человека или
 другой AI-модели. Это расширенный внутренний материал, а не короткий ответ для
@@ -16,15 +16,17 @@
    Sheets;
 2. извлекает реальные ссылки из ячеек, включая скрытые Excel-hyperlink’и;
 3. нормализует Instagram-адреса и удаляет tracking-параметры;
-4. разделяет исходные профили по ролям, чтобы бренды и тематические выбросы не
+4. в полном live-режиме собирает по seed датированные evidence из публичного
+   поискового индекса;
+5. разделяет исходные профили по ролям, чтобы бренды и тематические выбросы не
    искажали портрет блогера;
-5. строит эстетический и операционный портрет подходящего автора;
-6. использует сохранённый проверяемый снимок кандидатов либо выполняет live
+6. строит эстетический и операционный портрет подходящего автора;
+7. использует сохранённый проверяемый снимок кандидатов либо выполняет live
    web-поиск;
-7. отбрасывает профили без разрешённого URL, seed-дубли и очевидные агрегаторы;
-8. ранжирует кандидатов прозрачной формулой;
-9. создаёт персональный черновик оффера;
-10. показывает доказательства и выгружает полный результат в JSON.
+8. отбрасывает профили без разрешённого URL, seed-дубли и очевидные агрегаторы;
+9. ранжирует кандидатов прозрачной формулой;
+10. создаёт персональный черновик оффера;
+11. показывает доказательства и выгружает полный результат в JSON.
 
 Программа не является автоспамером. Она ничего не публикует и никому не пишет
 без человека. Финальное решение и отправка сообщения остаются за менеджером.
@@ -76,11 +78,11 @@
 | Закрытая Google Sheets через service account | Не реализовано | Описано как production-шаг |
 | Нормализация Instagram URL | Работает | Удаляются query-параметры, post/reel URL не принимаются |
 | Извлечение скрытых hyperlink | Работает | В реальной таблице исправляется 6 адресов |
-| Автоматическое enrichment всех seed | Не реализовано | 21 профиль размечен сохранёнными доказательствами, 13 остаются unknown |
+| Автоматическое enrichment seed | Работает как MVP | Три live-run: evidence по 24–33 из 34 профилей, 46–73 датированных public-index source; пропуски остаются unknown |
 | Кластерный rule-based portrait | Работает | Не требует LLM |
-| LLM portrait | Работает | Использует DeepSeek и сохранённые evidence |
+| LLM portrait | Работает | Использует DeepSeek и сохранённые либо live evidence |
 | Cached top-5 | Работает | Воспроизводимый снимок с источниками |
-| Live web discovery | Работает как MVP | DDGS + LLM, качество зависит от поискового индекса |
+| Live web discovery | Работает как MVP | Portrait + fallback queries → DDGS → portrait-aware LLM-отбор; качество зависит от индекса |
 | Instagram discovery | Частично | Только индексируемые публичные результаты |
 | Telegram discovery | Работает как MVP | Индексируемые публичные страницы |
 | YouTube Shorts adapter | Не реализован | Prompt допускает YouTube, код URL пока не обрабатывает |
@@ -146,13 +148,18 @@ Nike и Apple — `visual_reference`, а не потенциальные пар�
 есть по 21 из 34 профилей. Это честное ограничение текущего MVP и главный объект
 следующей итерации.
 
+В трёх завершённых full-live прогонах 28 июля 2026 года enrichment дал coverage
+от **0,71 до 0,97**: evidence найден по 24–33 из 34 профилей из 46–73
+датированных источников. Ошибки отдельных поисковых запросов не прерывали цикл,
+а пропуски сохранялись как `unknown`. Производные live JSON остаются локальными.
+
 ## 6. Три режима запуска
 
 | Режим | Портрет | Кандидаты | Офферы | Внешние вызовы |
 |---|---|---|---|---|
 | `Демо` | Rule-based | Cached snapshot | Deterministic | Нет |
 | `Live: DeepSeek` | DeepSeek | Cached snapshot | DeepSeek | 1 + N LLM-вызовов |
-| `Live: поиск + DeepSeek` | DeepSeek | DDGS + DeepSeek, затем fallback | DeepSeek | Web search + 2 + N LLM-вызовов |
+| `Live: поиск + DeepSeek` | Public-index seed evidence + DeepSeek | DDGS + DeepSeek, затем fallback | DeepSeek | Seed/discovery web search + 2 + N LLM-вызовов |
 
 При `N = 5`:
 
@@ -175,8 +182,11 @@ flowchart LR
     C["Публичная Google Sheets"] --> D
     D --> E["XLSX loader"]
     E --> F["Нормализация URL и data-quality report"]
-    F --> G["Seed + annotations"]
-    G --> H{"Режим портрета"}
+    F --> G{"Seed evidence"}
+    G -->|Demo| GA["Saved annotations"]
+    G -->|Full live| GB["Dated public-index evidence"]
+    GA --> H{"Режим портрета"}
+    GB --> H
     H -->|Demo| I["Rule-based portrait"]
     H -->|Live| J["DeepSeek portrait"]
     I --> K{"Режим discovery"}
@@ -256,6 +266,7 @@ flowchart TB
 | `ldlatte_agent/pipeline.py` | Оркестрация полного цикла |
 | `ldlatte_agent/xlsx_loader.py` | Excel, hyperlink, Instagram normalization, data quality |
 | `ldlatte_agent/google_sheets.py` | Преобразование публичной Sheets-ссылки в XLSX-export |
+| `ldlatte_agent/enrichment.py` | Датированный public-index evidence по исходным профилям |
 | `ldlatte_agent/portrait.py` | Rule-based и LLM-портрет |
 | `ldlatte_agent/discovery.py` | Поисковые запросы, URL allow-list, фильтры и LLM-extraction |
 | `ldlatte_agent/scoring.py` | Весовая модель и объяснение результата |
@@ -263,12 +274,12 @@ flowchart TB
 | `ldlatte_agent/llm.py` | JSON-интерфейс модели и DeepSeek adapter |
 | `ldlatte_agent/models.py` | Контракты `SeedProfile`, `Candidate`, `PipelineResult` |
 | `ldlatte_agent/cli.py` | Безынтерфейсный запуск и сохранение JSON |
-| `data/seed_annotations.json` | Evidence-разметка 21 seed-профиля |
+| `examples/seed_annotations.json` | Синтетическая разметка для публичного demo; приватная evidence-разметка исходной таблицы в Git не входит |
 | `data/candidates.json` | Проверяемый снимок пяти кандидатов |
 | `prompts/portrait.md` | Контракт кластерного портрета |
 | `prompts/discovery.md` | Контракт отбора только из разрешённых URL |
 | `prompts/offer.md` | Контракт персонального оффера |
-| `tests/test_pipeline.py` | Девять unit/integration-lite проверок |
+| `tests/test_pipeline.py` | 17 unit/integration-lite проверок pipeline |
 
 ## 10. Поток данных по шагам
 
@@ -321,9 +332,11 @@ hyperlink-объектам. Загрузчик проходит строки с�
 - наблюдаемые факты;
 - source URL.
 
-Разметка не подменяет автоматический enrichment. Это воспроизводимый evidence
-snapshot, необходимый, пока Instagram не предоставляет разрешённый публичный API
-для нужных данных.
+В demo сохранённая разметка обеспечивает воспроизводимость. В полном live-режиме
+`enrichment.py` отдельно ищет индексируемые публичные evidence для каждого seed,
+ставит дату, source type и confidence и передаёт результат в LLM-портрет.
+Поисковый сниппет не считается официальной метрикой платформы, а отсутствие
+результата остаётся `unknown`.
 
 ### Шаг 6. Портрет
 
@@ -509,9 +522,10 @@ UI отображает результат по вкладкам, CLI сохра
 }
 ```
 
-В cached snapshot evidence уже хранится со временем и источником, но seed
-annotations пока используют упрощённый формат без `observed_at` и отдельного
-confidence на каждый факт.
+В cached candidate snapshot evidence уже хранится со временем и источником.
+Сохранённые seed annotations используют упрощённый формат, а автоматический
+live-enrichment добавляет `observed_at`, source type и confidence к каждому
+найденному источнику.
 
 ## 12. Текущий результат top-5
 
@@ -559,12 +573,16 @@ python -m ldlatte_agent.cli `
 Флаги:
 
 - `--live-llm`;
+- `--live-seed-enrichment`;
 - `--live-discovery`;
 - `--limit 3..5`.
 
 ## 14. Тестирование и доказательства работы
 
-На текущем состоянии проходят **9 из 9** тестов.
+Suite содержит **52 теста**. Локально проходит 51, один live-интеграционный тест
+ожидаемо пропускается без API-вызова. В публичном CI проходят 50 и пропускаются
+два теста, которым нужны приватная таблица и live API; матрица запускается на
+Python 3.11 и 3.12.
 
 | Проверка | Что доказывает |
 |---|---|
@@ -573,15 +591,18 @@ python -m ldlatte_agent.cli `
 | Aggregator detection | Очевидный канал перепостов отбрасывается |
 | Followers parsing | K-метрики читаются из индексируемого текста |
 | Google URL export | Sheets URL корректно превращается в XLSX |
+| Seed enrichment | Public-index evidence получает source, дату и confidence; метрики не выдумываются |
+| Portrait-driven discovery | Поисковые запросы и LLM-отбор получают построенный портрет |
 | Real workbook hyperlink | Извлекаются 34 seed и 6+ скрытых адресов |
 | Missing metric | Пропуск не считается нулём |
 | Demo pipeline | Возвращаются 5 новых кандидатов с source и offer |
+| Discovery fallback | Сетевой сбой не прерывает цикл: используется cached snapshot |
 | Sender hallucination | Deterministic-оффер не выдумывает отправителя |
 
 Также есть:
 
 - рабочий Streamlit screenshot;
-- контрольный CLI-прогон в `results/dossier-demo.json`;
+- воспроизводимый CLI-прогон по команде из `README.md`;
 - сохранённые evidence snapshots;
 - полный отчёт в `docs/part1-results.md`.
 
@@ -590,7 +611,7 @@ python -m ldlatte_agent.cli `
 - реальные DeepSeek-вызовы;
 - malformed/partial JSON от LLM;
 - retry, timeout и rate limit;
-- live DDGS instability;
+- вариативность реальной DDGS-выдачи;
 - prompt injection из title/snippet;
 - публичную и закрытую Google Sheets end-to-end;
 - Streamlit UI;
@@ -619,8 +640,9 @@ python -m ldlatte_agent.cli `
 
 ### P0 — влияет на достоверность или законность
 
-1. **Нет автоматического seed enrichment.** Инструмент читает таблицу сам, но
-   факты по seed сейчас подготовлены заранее только для 21 профиля.
+1. **Seed enrichment зависит от поискового индекса.** MVP собирает датированные
+   сниппеты автоматически, но это не прямой platform API и не гарантирует
+   покрытие каждого профиля.
 2. **Нет мультимодального анализа визуала.** Aesthetic fit не извлекается из
    сетки изображений/роликов автоматически.
 3. **Evidence кандидатов стареет.** Перед контактом нужны refresh и freshness
@@ -640,14 +662,11 @@ python -m ldlatte_agent.cli `
 4. Aggregator heuristic очень узкий.
 5. URL присутствует в поисковой выдаче, но прямой HTTP/profile-health check не
    выполняется.
-6. `duplicate_handles` в data-quality report всегда равен нулю: счётчик
-   фактических дублей не реализован.
-7. `observed_at="live"` не является ISO-датой.
-8. Нет кэша, retry/backoff и лимитов.
-9. Офферы генерируются последовательно.
-10. Нет prompt/model/version hashes в run manifest.
-11. Нет authentication и cost controls для публичного Streamlit deployment.
-12. Requirements заданы диапазонами, но нет lock-файла.
+6. Нет кэша, retry/backoff и лимитов.
+7. Офферы и seed-поиск выполняются последовательно.
+8. Нет prompt/model/version hashes в run manifest.
+9. Нет authentication и cost controls для публичного Streamlit deployment.
+10. Requirements заданы диапазонами, но нет lock-файла.
 
 ### P2 — продуктовые улучшения
 
@@ -849,7 +868,6 @@ flowchart LR
 
 ### Этап A. Доказуемость MVP
 
-- исправить счётчик дублей;
 - добавить строгие схемы LLM-ответов;
 - добавить run manifest;
 - тестировать malformed JSON и fallback;
@@ -859,10 +877,10 @@ flowchart LR
 Критерий готовности: повторный demo-run даёт тот же ranking, а любой факт можно
 проследить до источника.
 
-### Этап B. Автоматический seed enrichment
+### Этап B. Укрепление seed enrichment
 
 - построить очередь по 34 seed;
-- собирать доступный публичный text/evidence;
+- добавить разрешённые platform sources поверх public-index MVP;
 - добавить manual annotation UI;
 - хранить время, источник и confidence на факт;
 - довести evidence coverage выше 90%;
@@ -972,7 +990,7 @@ flowchart LR
 
 - legal approval;
 - platform adapters;
-- автоматическое evidence enrichment;
+- production-grade evidence enrichment;
 - persistence;
 - auth/RBAC;
 - secrets;
@@ -1006,7 +1024,8 @@ flowchart LR
 - `prompts/portrait.md` — портрет.
 - `prompts/discovery.md` — discovery.
 - `prompts/offer.md` — оффер.
-- `data/seed_annotations.json` — seed evidence.
+- `examples/seed_annotations.json` — синтетический seed evidence для demo;
+  приватная разметка исходной таблицы не публикуется.
 - `data/candidates.json` — candidate snapshot.
 - `docs/assets/demo/` — скриншоты интерфейса.
 - `docs/part1-model-context.md` — контекст для другой модели.
